@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Shield, Clock, RefreshCw } from 'lucide-react';
+import { FileText, Shield, Clock, RefreshCw, User, CheckCircle2 } from 'lucide-react';
 import api from '../api';
 
 export default function AuditLogViewer({ showToast }) {
@@ -24,72 +24,78 @@ export default function AuditLogViewer({ showToast }) {
     fetchLogs();
   }, []);
 
+  const getActionBadgeClass = (action) => {
+    if (action.includes('THRESHOLD')) return 'badge badge-blue';
+    if (action.includes('SCHEDULE') || action.includes('WINDOW')) return 'badge badge-green';
+    if (action.includes('EMAIL')) return 'badge badge-amber';
+    return 'badge badge-gray';
+  };
+
   return (
-    <div className="panel-card">
-      <div className="panel-header">
+    <div className="card">
+      <div className="card-header">
         <div>
-          <h2 className="panel-title">System Audit & Change Trail</h2>
-          <p className="panel-desc">Complete traceability log of all threshold alterations, schedule updates, and administrator actions.</p>
+          <h2 className="card-title">Administrative Change Trail & Audit History</h2>
+          <p className="card-desc">
+            Complete tamper-evident traceability of all pulse limit adjustments, schedule alterations, and supervisor actions.
+          </p>
         </div>
-        <button onClick={fetchLogs} className="btn-secondary" title="Refresh Logs">
-          <RefreshCw size={15} />
+        <button onClick={fetchLogs} className="btn btn-secondary" title="Refresh Audit Trail">
+          <RefreshCw size={14} />
           <span>Refresh</span>
         </button>
       </div>
 
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Admin User</th>
-            <th>Action Type</th>
-            <th>Change Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
             <tr>
-              <td colSpan="4" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                Loading audit trail...
-              </td>
+              <th style={{ width: '18%' }}>Timestamp</th>
+              <th style={{ width: '14%' }}>Administrator</th>
+              <th style={{ width: '18%' }}>Action Category</th>
+              <th style={{ width: '50%' }}>Description of Modification</th>
             </tr>
-          ) : logs.length === 0 ? (
-            <tr>
-              <td colSpan="4" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                No administrative actions logged yet.
-              </td>
-            </tr>
-          ) : (
-            logs.map((log) => (
-              <tr key={log.id}>
-                <td style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>
-                  {new Date(log.timestamp).toLocaleString()}
-                </td>
-                <td>
-                  <span className="badge-blue">
-                    <Shield size={12} /> {log.user || 'Admin'}
-                  </span>
-                </td>
-                <td>
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    color: log.action.includes('THRESHOLD') ? '#2563eb' : (log.action.includes('SCHEDULE') ? '#0284c7' : '#475569'),
-                    background: '#f1f5f9',
-                    padding: '3px 8px',
-                    borderRadius: '4px'
-                  }}>
-                    {log.action}
-                  </span>
-                </td>
-                <td style={{ fontSize: '13px', fontWeight: '500', color: '#1e293b' }}>
-                  {log.details}
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                  Loading audit logs...
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : logs.length === 0 ? (
+              <tr>
+                <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                  No administrative actions recorded yet.
+                </td>
+              </tr>
+            ) : (
+              logs.map((log) => (
+                <tr key={log.id}>
+                  <td style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                    {new Date(log.timestamp).toLocaleString()}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="badge badge-gray">
+                        <User size={12} /> {log.user || 'Admin'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={getActionBadgeClass(log.action)}>
+                      {log.action}
+                    </span>
+                  </td>
+                  <td style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a' }}>
+                    {log.details}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

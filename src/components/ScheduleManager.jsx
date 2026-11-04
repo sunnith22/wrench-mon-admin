@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Clock, Play, CheckCircle2, AlertTriangle, Trash2, Edit3, X, Save, Power } from 'lucide-react';
+import {
+  Calendar,
+  Plus,
+  Clock,
+  Play,
+  CheckCircle2,
+  AlertTriangle,
+  Trash2,
+  Edit3,
+  X,
+  Save,
+  ShieldCheck,
+  Zap,
+  Activity,
+  Layers
+} from 'lucide-react';
 import api from '../api';
 
 export default function ScheduleManager({ showToast }) {
@@ -28,7 +43,7 @@ export default function ScheduleManager({ showToast }) {
         setSyncStatus(res.data.syncStatus || null);
       }
     } catch (err) {
-      showToast('Error fetching schedule: ' + (err.response?.data?.message || err.message), 'error');
+      showToast('Error loading schedule: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setLoading(false);
     }
@@ -44,10 +59,10 @@ export default function ScheduleManager({ showToast }) {
     setEditingId(null);
     setFormData({
       name: '',
-      startTime: '11:00',
-      endTime: '11:10',
+      startTime: '11:15',
+      endTime: '11:25',
       enabled: true,
-      description: 'Line availability window'
+      description: 'Scheduled conveyor stop or tea break'
     });
     setShowModal(true);
   };
@@ -94,7 +109,7 @@ export default function ScheduleManager({ showToast }) {
   };
 
   const handleDeleteWindow = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to remove the window "${name}" from the schedule?`)) return;
+    if (!window.confirm(`Are you sure you want to remove the window "${name}"?`)) return;
     try {
       const res = await api.delete(`/schedule/${id}`);
       if (res.data.success) {
@@ -136,8 +151,73 @@ export default function ScheduleManager({ showToast }) {
 
   return (
     <div>
-      {/* Status Bar Card */}
-      <div className="panel-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      {/* Visual Shift Timeline Card */}
+      <div className="card" style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+          <div>
+            <h2 className="card-title">Production Shift 1 Availability Timeline</h2>
+            <p className="card-desc">Scheduled line break periods authorized for telemetry extraction</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="badge badge-green">
+              <ShieldCheck size={13} /> Zero Production Risk
+            </span>
+          </div>
+        </div>
+
+        {/* Visual Shift Bar */}
+        <div style={{
+          background: '#f1f5f9',
+          borderRadius: '12px',
+          padding: '16px',
+          border: '1px solid #e2e8f0',
+          position: 'relative'
+        }}>
+          {/* Shift Time Indicators */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>
+            <span>07:45 (Shift Start)</span>
+            <span>10:00 (Break 1)</span>
+            <span>13:00 (Lunch)</span>
+            <span>15:00 (Break 2)</span>
+            <span>16:45 (Shift End)</span>
+          </div>
+
+          {/* Timeline Bar with Window Blocks */}
+          <div style={{ height: '22px', background: '#e2e8f0', borderRadius: '12px', display: 'flex', overflow: 'hidden', position: 'relative' }}>
+            {/* 07:45 to 10:00 (Production Running) */}
+            <div style={{ flex: '2.25', background: '#cbd5e1' }} title="07:45 - 10:00: Active Assembly (No Polling)" />
+            {/* Window 1: 10:00 - 10:10 (Tea Break) */}
+            <div style={{ flex: '0.2', background: '#2563eb' }} title="10:00 - 10:10: Morning Tea Sync Window" />
+            {/* 10:10 to 13:00 (Production Running) */}
+            <div style={{ flex: '2.8', background: '#cbd5e1' }} title="10:10 - 13:00: Active Assembly (No Polling)" />
+            {/* Window 2: 13:00 - 13:30 (Lunch) */}
+            <div style={{ flex: '0.6', background: '#10b981' }} title="13:00 - 13:30: Lunch Break Sync Window" />
+            {/* 13:30 to 15:00 (Production Running) */}
+            <div style={{ flex: '1.5', background: '#cbd5e1' }} title="13:30 - 15:00: Active Assembly (No Polling)" />
+            {/* Window 3: 15:00 - 15:10 (Tea Break) */}
+            <div style={{ flex: '0.2', background: '#f59e0b' }} title="15:00 - 15:10: Afternoon Tea Sync Window" />
+            {/* 15:10 to 16:40 (Production Running) */}
+            <div style={{ flex: '1.5', background: '#cbd5e1' }} title="15:10 - 16:40: Active Assembly (No Polling)" />
+            {/* Window 4: 16:40 - 16:45 (Shift End) */}
+            <div style={{ flex: '0.15', background: '#6366f1' }} title="16:40 - 16:45: Shift End Wrap-Up Window" />
+          </div>
+
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap', fontSize: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#cbd5e1' }} />
+              <span style={{ color: '#64748b' }}>Active Production (Shop Floor PC Protected)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#2563eb' }} />
+              <span style={{ color: '#0f172a', fontWeight: '600' }}>Extraction Allowed (Conveyor Paused)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Manual Trigger & Immediate Sync Bar */}
+      <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{
@@ -147,170 +227,143 @@ export default function ScheduleManager({ showToast }) {
               background: syncStatus?.isRunning ? '#f59e0b' : '#10b981',
               display: 'inline-block'
             }} />
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-              Dynamic Scheduler: {syncStatus?.isRunning ? 'ACTIVE EXTRACTION RUNNING' : 'ONLINE & MONITORING'}
-            </h3>
+            <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
+              Dynamic Scheduler Status: {syncStatus?.isRunning ? 'ACTIVE EXTRACTION IN PROGRESS' : 'ONLINE & MONITORING'}
+            </span>
           </div>
-          <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px', margin: 0 }}>
-            Line extraction is strictly locked to the dynamic availability windows below to protect the shop floor PC.
-          </p>
+          <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+            {syncStatus?.lastSync?.timestamp ? (
+              <span>Last Sync: <strong>{new Date(syncStatus.lastSync.timestamp).toLocaleTimeString()}</strong> ({syncStatus.lastSync.windowName}) • Stored: <strong>{syncStatus.lastSync.totalFetched} cycles</strong></span>
+            ) : (
+              <span>Ready for next scheduled availability window</span>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button
+            onClick={openAddModal}
+            className="btn btn-secondary"
+          >
+            <Plus size={15} />
+            <span>Add Pulling Window</span>
+          </button>
+
+          <button
             onClick={handleTriggerSyncNow}
             disabled={triggering || syncStatus?.isRunning}
-            className="btn-primary"
+            className="btn btn-primary"
             style={{ padding: '10px 18px', background: '#2563eb' }}
           >
-            <Play size={15} />
+            <Zap size={15} />
             <span>{triggering ? 'Pulling Data...' : '⚡ Trigger Sync Now'}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Schedule Table Card */}
-      <div className="panel-card">
-        <div className="panel-header">
-          <div>
-            <h2 className="panel-title">Line Availability Pulling Windows</h2>
-            <p className="panel-desc">
-              Define the exact start and end times during which the backend is authorized to pull data from the shop floor PC.
-            </p>
-          </div>
+      {/* Active Windows Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        {schedule.map((w) => {
+          const [sh, sm] = w.startTime.split(':').map(Number);
+          const [eh, em] = w.endTime.split(':').map(Number);
+          const durationMin = (eh * 60 + em) - (sh * 60 + sm);
 
-          <button onClick={openAddModal} className="btn-primary">
-            <Plus size={16} />
-            <span>Add New Pulling Window</span>
-          </button>
-        </div>
+          return (
+            <div
+              key={w.id}
+              className="card"
+              style={{
+                position: 'relative',
+                borderLeft: w.enabled ? '4px solid #2563eb' : '4px solid #cbd5e1',
+                background: w.enabled ? '#ffffff' : '#fcfdfe'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <div>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                    {w.name}
+                  </h3>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                    {w.description || 'Production break / line stop'}
+                  </div>
+                </div>
 
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>Window Name</th>
-              <th>Allowed Time Range</th>
-              <th>Duration</th>
-              <th>Description / Purpose</th>
-              <th style={{ textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                  Loading schedule configuration...
-                </td>
-              </tr>
-            ) : schedule.length === 0 ? (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                  No active windows defined. Click "Add New Pulling Window" to configure one.
-                </td>
-              </tr>
-            ) : (
-              schedule.map((w) => {
-                const [sh, sm] = w.startTime.split(':').map(Number);
-                const [eh, em] = w.endTime.split(':').map(Number);
-                const durationMin = (eh * 60 + em) - (sh * 60 + sm);
+                {/* Enable/Disable Switch */}
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={w.enabled}
+                    onChange={() => handleToggleEnabled(w)}
+                  />
+                  <span className="slider" />
+                </label>
+              </div>
 
-                return (
-                  <tr key={w.id}>
-                    <td style={{ width: '80px' }}>
-                      <button
-                        onClick={() => handleToggleEnabled(w)}
-                        title={w.enabled ? 'Click to pause this window' : 'Click to enable this window'}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}
-                      >
-                        <Power size={16} color={w.enabled ? '#10b981' : '#94a3b8'} />
-                        <span style={{ fontSize: '12px', fontWeight: '600', color: w.enabled ? '#047857' : '#94a3b8' }}>
-                          {w.enabled ? 'ACTIVE' : 'PAUSED'}
-                        </span>
-                      </button>
-                    </td>
+              {/* Time Badge Box */}
+              <div style={{
+                background: w.enabled ? '#eff6ff' : '#f1f5f9',
+                border: w.enabled ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={16} color={w.enabled ? '#2563eb' : '#64748b'} />
+                  <span style={{
+                    fontSize: '16px',
+                    fontWeight: '800',
+                    fontFamily: 'monospace',
+                    color: w.enabled ? '#1e40af' : '#64748b'
+                  }}>
+                    {w.startTime} — {w.endTime}
+                  </span>
+                </div>
+                <span className="badge badge-blue">
+                  {durationMin > 0 ? `${durationMin} mins` : 'Instant'}
+                </span>
+              </div>
 
-                    <td>
-                      <div style={{ fontWeight: '600', color: '#0f172a' }}>{w.name}</div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>ID: {w.id}</div>
-                    </td>
-
-                    <td>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{
-                          fontSize: '14px',
-                          fontWeight: '700',
-                          color: '#2563eb',
-                          background: '#eff6ff',
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          border: '1px solid #bfdbfe',
-                          fontFamily: 'monospace'
-                        }}>
-                          {w.startTime} — {w.endTime}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td>
-                      <span className="badge-blue">
-                        <Clock size={12} /> {durationMin > 0 ? `${durationMin} mins` : 'Instant'}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span style={{ fontSize: '13px', color: '#475569' }}>
-                        {w.description || 'Production break / line stop'}
-                      </span>
-                    </td>
-
-                    <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '8px' }}>
-                        <button
-                          onClick={() => openEditModal(w)}
-                          className="btn-secondary"
-                          style={{ padding: '6px 10px', fontSize: '12px' }}
-                          title="Edit Window Time"
-                        >
-                          <Edit3 size={13} />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteWindow(w.id, w.name)}
-                          className="btn-danger"
-                          title="Delete Window"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+              {/* Footer Actions */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
+                <span style={{ fontSize: '11px', color: w.enabled ? '#10b981' : '#94a3b8', fontWeight: '600' }}>
+                  {w.enabled ? '● Active in scheduler' : '○ Paused'}
+                </span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => openEditModal(w)}
+                    className="btn btn-secondary"
+                    style={{ padding: '5px 10px', fontSize: '12px' }}
+                  >
+                    <Edit3 size={13} />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteWindow(w.id, w.name)}
+                    className="btn btn-danger"
+                    style={{ padding: '5px 8px' }}
+                    title="Delete Window"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* ADD / EDIT MODAL */}
       {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#0f172a', margin: 0 }}>
-                {editingId ? 'Edit Pulling Window' : 'Add New Line Pulling Window'}
+        <div className="modal-backdrop" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                {editingId ? 'Edit Pulling Window Time' : 'Add New Line Pulling Window'}
               </h3>
-              <button
-                onClick={closeModal}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}
-              >
+              <button onClick={closeModal} className="btn-ghost">
                 <X size={18} />
               </button>
             </div>
@@ -318,13 +371,13 @@ export default function ScheduleManager({ showToast }) {
             <form onSubmit={handleSaveWindow}>
               <div className="modal-body">
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-                    Window Label / Name
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>
+                    Window Name / Label
                   </label>
                   <input
                     type="text"
                     required
-                    className="form-input"
+                    className="input-field"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. Afternoon Tea Break, Conveyor Stop, Lunch"
@@ -333,25 +386,25 @@ export default function ScheduleManager({ showToast }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>
                       Start Time (24h)
                     </label>
                     <input
                       type="time"
                       required
-                      className="form-input"
+                      className="input-field"
                       value={formData.startTime}
                       onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>
                       End Time (24h)
                     </label>
                     <input
                       type="time"
                       required
-                      className="form-input"
+                      className="input-field"
                       value={formData.endTime}
                       onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                     />
@@ -359,15 +412,15 @@ export default function ScheduleManager({ showToast }) {
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
-                    Operational Description
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '6px' }}>
+                    Operational Reason / Notes
                   </label>
                   <textarea
                     rows={2}
-                    className="form-input"
+                    className="input-field"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="e.g. Scheduled morning break. Conveyor halted."
+                    placeholder="e.g. Scheduled morning tea break. Conveyor line halted."
                   />
                 </div>
 
@@ -378,33 +431,35 @@ export default function ScheduleManager({ showToast }) {
                   padding: '12px 14px',
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
-                  borderRadius: '6px'
+                  borderRadius: '10px'
                 }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a' }}>Window Enabled</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>If enabled, worker triggers during this period</div>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>Active in Scheduler</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>If enabled, worker triggers extraction inside this range</div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={formData.enabled}
-                    onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                  />
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={formData.enabled}
+                      onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
+                    />
+                    <span className="slider" />
+                  </label>
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="modal-foot">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="btn-secondary"
+                  className="btn btn-secondary"
                   disabled={saving}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="btn btn-primary"
                   disabled={saving}
                 >
                   <Save size={15} />

@@ -48,7 +48,7 @@ export default function App() {
   }
 
   return (
-    <div className="admin-app">
+    <div className="admin-shell">
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -56,18 +56,18 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      <main className="admin-content">
+      <main className="page-container">
         {activeTab === 'thresholds' && <ThresholdManager showToast={showToast} />}
         {activeTab === 'schedule' && <ScheduleManager showToast={showToast} />}
         {activeTab === 'email' && <EmailConfigManager showToast={showToast} />}
         {activeTab === 'audit' && <AuditLogViewer showToast={showToast} />}
       </main>
 
-      {/* Toast Notification Stack */}
-      <div className="toast-container">
+      {/* Modern Toast Notification Stack */}
+      <div className="toast-rack">
         {toasts.map(t => (
-          <div key={t.id} className="toast" style={{
-            background: t.type === 'error' ? '#ef4444' : '#0f172a'
+          <div key={t.id} className="toast-msg" style={{
+            background: t.type === 'error' ? '#b91c1c' : '#0f172a'
           }}>
             <span>{t.message}</span>
           </div>

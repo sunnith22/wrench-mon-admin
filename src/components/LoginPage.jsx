@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Lock, User, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { Lock, User, ShieldCheck, AlertCircle, ArrowRight, Check, Eye, EyeOff } from 'lucide-react';
 import api from '../api';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -21,7 +22,7 @@ export default function LoginPage({ onLoginSuccess }) {
         onLoginSuccess(res.data.user);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please verify credentials.');
+      setError(err.response?.data?.message || 'Invalid administrator credentials. Please check username and password.');
     } finally {
       setLoading(false);
     }
@@ -33,125 +34,159 @@ export default function LoginPage({ onLoginSuccess }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#f1f5f9',
-      padding: '20px'
+      background: 'radial-gradient(circle at 50% 20%, #f1f5f9 0%, #e2e8f0 100%)',
+      padding: '24px'
     }}>
       <div style={{
         background: '#ffffff',
         width: '100%',
-        maxWidth: '420px',
-        borderRadius: '12px',
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+        maxWidth: '440px',
+        borderRadius: '16px',
+        boxShadow: '0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04)',
         border: '1px solid #e2e8f0',
         overflow: 'hidden'
       }}>
-        {/* Header Banner */}
+        {/* Header Hero */}
         <div style={{
-          background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
           color: 'white',
-          padding: '28px 24px',
-          textAlign: 'center'
+          padding: '32px 28px',
+          textAlign: 'center',
+          position: 'relative'
         }}>
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: '52px',
+            height: '52px',
             background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-            borderRadius: '10px',
+            borderRadius: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 12px',
-            boxShadow: '0 4px 10px rgba(37,99,235,0.3)'
+            margin: '0 auto 14px',
+            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)'
           }}>
-            <ShieldCheck size={26} color="white" />
+            <ShieldCheck size={28} color="white" />
           </div>
-          <h2 style={{ fontSize: '19px', fontWeight: '700', letterSpacing: '-0.3px', margin: 0 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '-0.3px', margin: 0 }}>
             TNGA Admin Control Center
           </h2>
           <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '6px', margin: 0 }}>
-            Impact Wrench Pulse & Schedule Management
+            Toyota Kirloskar Engine Line | Pulse & Schedule Manager
           </p>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ padding: '28px 24px' }}>
+        <form onSubmit={handleSubmit} style={{ padding: '28px' }}>
           {error && (
             <div style={{
               background: '#fef2f2',
               border: '1px solid #fecaca',
-              color: '#b91c1c',
-              padding: '10px 14px',
-              borderRadius: '6px',
+              color: '#991b1b',
+              padding: '12px 14px',
+              borderRadius: '8px',
               fontSize: '13px',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '10px',
               marginBottom: '20px'
             }}>
-              <AlertCircle size={16} />
+              <AlertCircle size={17} style={{ flexShrink: 0 }} />
               <span>{error}</span>
             </div>
           )}
 
           <div style={{ marginBottom: '18px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-              Username
+              Administrator Username
             </label>
             <div style={{ position: 'relative' }}>
               <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '11px' }} />
               <input
                 type="text"
                 required
-                className="form-input"
-                style={{ paddingLeft: '38px' }}
+                className="input-field"
+                style={{ paddingLeft: '38px', height: '40px' }}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter admin username"
+                placeholder="Enter username"
               />
             </div>
           </div>
 
-          <div style={{ marginBottom: '22px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#475569', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
               Password
             </label>
             <div style={{ position: 'relative' }}>
               <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '11px' }} />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
-                className="form-input"
-                style={{ paddingLeft: '38px' }}
+                className="input-field"
+                style={{ paddingLeft: '38px', paddingRight: '38px', height: '40px' }}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '11px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#94a3b8',
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
-            style={{ width: '100%', justifyContent: 'center', padding: '11px', fontSize: '14px' }}
+            className="btn btn-primary"
+            style={{ width: '100%', padding: '12px', fontSize: '14px', borderRadius: '8px' }}
           >
             {loading ? 'Authenticating...' : (
               <>
-                <span>Sign In to Admin Portal</span>
+                <span>Sign In to Admin Console</span>
                 <ArrowRight size={16} />
               </>
             )}
           </button>
 
+          {/* Quick Demo Fill Helper */}
           <div style={{
-            marginTop: '20px',
+            marginTop: '22px',
             paddingTop: '16px',
             borderTop: '1px solid #f1f5f9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             fontSize: '12px',
-            color: '#64748b',
-            textAlign: 'center'
+            color: '#64748b'
           }}>
-            Default Credentials: <strong>admin</strong> / <strong>admin123</strong>
+            <span>Default: <strong>admin</strong> / <strong>admin123</strong></span>
+            <button
+              type="button"
+              onClick={() => { setUsername('admin'); setPassword('admin123'); }}
+              style={{
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                color: '#2563eb',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Fill Demo
+            </button>
           </div>
         </form>
       </div>
