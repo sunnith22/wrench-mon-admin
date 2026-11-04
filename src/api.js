@@ -7,7 +7,7 @@ const API_BASE = import.meta.env.VITE_API_URL ||
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 8000
+  timeout: 15000
 });
 
 // Attach Admin Bearer Token to all requests
