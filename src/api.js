@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8140/api/admin';
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' 
+    ? `${window.location.protocol}//${window.location.hostname}:8140/api/admin` 
+    : 'http://localhost:8140/api/admin');
 
 const api = axios.create({
   baseURL: API_BASE,

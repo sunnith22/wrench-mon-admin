@@ -67,7 +67,7 @@ export default function Header({ activeTab, setActiveTab, user, onLogout }) {
 
         {/* Link to Main Monitoring Dashboard */}
         <a
-          href="http://localhost:3010"
+          href={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:3010` : 'http://localhost:3010'}
           target="_blank"
           rel="noreferrer"
           className="btn-main-dashboard"
