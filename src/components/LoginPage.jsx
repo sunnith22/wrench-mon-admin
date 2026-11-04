@@ -55,23 +55,31 @@ export default function LoginPage({ onLoginSuccess }) {
           position: 'relative'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-            borderRadius: '12px',
-            display: 'flex',
+            background: '#ffffff',
+            borderRadius: '10px',
+            padding: '8px 18px',
+            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 14px',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)'
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)'
           }}>
-            <ShieldCheck size={28} color="white" />
+            <img
+              src="/tiei-logo.png"
+              alt="TIEI Logo"
+              style={{
+                height: '26px',
+                width: 'auto',
+                objectFit: 'contain',
+                display: 'block'
+              }}
+            />
           </div>
           <h2 style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '-0.3px', margin: 0 }}>
             TNGA Admin Control Center
           </h2>
           <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '6px', margin: 0 }}>
-            Toyota Kirloskar Engine Line | Pulse & Schedule Manager
+            Toyota Industries Engine India • Line Management Portal
           </p>
         </div>
 

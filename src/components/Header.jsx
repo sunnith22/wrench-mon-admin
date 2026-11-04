@@ -6,15 +6,23 @@ export default function Header({ activeTab, setActiveTab, user, onLogout }) {
     <header className="top-navbar">
       {/* Brand Logo & Name */}
       <div className="brand-wrap">
-        <div className="brand-badge">
-          <ShieldCheck size={22} />
-        </div>
+        <img
+          src="/tiei-logo.png"
+          alt="TIEI Logo"
+          style={{
+            height: '32px',
+            width: 'auto',
+            objectFit: 'contain',
+            display: 'block'
+          }}
+        />
+        <div style={{ width: '1px', height: '24px', background: '#e2e8f0', margin: '0 4px' }} />
         <div>
           <div className="brand-name">
             <span>TNGA Impact Wrench</span>
             <span className="brand-pill">Admin Console</span>
           </div>
-          <div className="brand-sub">Toyota Kirloskar Engine Production Line</div>
+          <div className="brand-sub">Toyota Industries Engine India • Production Line</div>
         </div>
       </div>
 
