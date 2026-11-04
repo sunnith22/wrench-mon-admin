@@ -168,32 +168,24 @@ export default function EmailConfigManager({ showToast }) {
           </div>
 
           {/* Cooldown Settings */}
-          <div style={{ marginBottom: '22px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>
-                Spam Prevention Cooldown Window
-              </label>
-              <span className="badge badge-blue">
-                {config?.cooldownMinutes || 10} minutes
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '6px' }}>
+              Alert Cooldown Window (Minutes)
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <input
+                type="number"
+                min="1"
+                max="60"
+                className="form-input"
+                style={{ width: '120px' }}
+                value={config?.cooldownMinutes ?? 10}
+                onChange={(e) => setConfig({ ...config, cooldownMinutes: parseInt(e.target.value, 10) || 1 })}
+              />
+              <span style={{ fontSize: '12px', color: '#64748b' }}>
+                Suppresses repeat alert emails for the same tool within this interval.
               </span>
             </div>
-            <input
-              type="range"
-              min="2"
-              max="60"
-              step="1"
-              value={config?.cooldownMinutes || 10}
-              onChange={(e) => setConfig({ ...config, cooldownMinutes: parseInt(e.target.value, 10) })}
-              style={{ width: '100%', accentColor: '#2563eb', cursor: 'pointer' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
-              <span>2 mins (Fast)</span>
-              <span>10 mins (Recommended)</span>
-              <span>60 mins (Quiet)</span>
-            </div>
-            <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
-              Suppresses repeat alert emails for the same physical tool within this interval.
-            </p>
           </div>
 
           {/* Condition Triggers */}
