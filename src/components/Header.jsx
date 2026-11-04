@@ -1,83 +1,68 @@
 import React from 'react';
-import { ShieldCheck, Calendar, Sliders, Mail, FileText, ExternalLink, LogOut, Activity } from 'lucide-react';
+import { Calendar, Sliders, Mail, FileText, ExternalLink, LogOut } from 'lucide-react';
 
 export default function Header({ activeTab, setActiveTab, user, onLogout }) {
   return (
     <header className="top-navbar">
-      {/* Brand Logo & Name */}
+      {/* Brand: TIEI Logo + Portal Title */}
       <div className="brand-wrap">
         <img
           src="/tiei-logo.png"
           alt="TIEI Logo"
-          style={{
-            height: '32px',
-            width: 'auto',
-            objectFit: 'contain',
-            display: 'block'
-          }}
+          className="brand-logo-img"
         />
-        <div style={{ width: '1px', height: '24px', background: '#e2e8f0', margin: '0 4px' }} />
-        <div>
-          <div className="brand-name">
-            <span>TNGA Impact Wrench</span>
-            <span className="brand-pill">Admin Console</span>
-          </div>
-          <div className="brand-sub">Toyota Industries Engine India • Production Line</div>
+        <div className="brand-divider" />
+        <div className="brand-title-group">
+          <span className="brand-title">TNGA Admin Portal</span>
+          <span className="brand-pill">Console</span>
         </div>
       </div>
 
-      {/* Modern Center Navigation Pills */}
+      {/* Modern Center Navigation Tabs */}
       <nav className="nav-pills">
         <button
           className={`nav-pill ${activeTab === 'thresholds' ? 'active' : ''}`}
           onClick={() => setActiveTab('thresholds')}
+          type="button"
         >
-          <Sliders size={16} />
-          <span>Pulse Count Limits</span>
+          <Sliders size={15} />
+          <span>Pulse Limits</span>
         </button>
 
         <button
           className={`nav-pill ${activeTab === 'schedule' ? 'active' : ''}`}
           onClick={() => setActiveTab('schedule')}
+          type="button"
         >
-          <Calendar size={16} />
-          <span>Pulling Times & Schedule</span>
+          <Calendar size={15} />
+          <span>Sync Schedule</span>
         </button>
 
         <button
           className={`nav-pill ${activeTab === 'email' ? 'active' : ''}`}
           onClick={() => setActiveTab('email')}
+          type="button"
         >
-          <Mail size={16} />
-          <span>Email Alert Triggers</span>
+          <Mail size={15} />
+          <span>Email Alerts</span>
         </button>
 
         <button
           className={`nav-pill ${activeTab === 'audit' ? 'active' : ''}`}
           onClick={() => setActiveTab('audit')}
+          type="button"
         >
-          <FileText size={16} />
+          <FileText size={15} />
           <span>Audit Trail</span>
         </button>
       </nav>
 
-      {/* Right Side Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* Safe Mode Badge */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          background: '#ecfdf5',
-          border: '1px solid #a7f3d0',
-          padding: '5px 12px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: '600',
-          color: '#065f46'
-        }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-          <span>Protected Shift Mode</span>
+      {/* Right Controls */}
+      <div className="header-actions">
+        {/* Protected Mode Badge */}
+        <div className="status-badge" title="Line protection active - shop-floor polling restricted to scheduled shift windows">
+          <span className="status-dot" />
+          <span>Protected Mode</span>
         </div>
 
         {/* Link to Main Monitoring Dashboard */}
@@ -85,52 +70,33 @@ export default function Header({ activeTab, setActiveTab, user, onLogout }) {
           href="http://localhost:3010"
           target="_blank"
           rel="noreferrer"
-          className="btn btn-secondary"
-          style={{ padding: '7px 13px', fontSize: '12px', gap: '6px' }}
-          title="Open the real-time operational dashboard in a new tab"
+          className="btn-main-dashboard"
+          title="Open real-time operational dashboard (Port 3010) in a new tab"
         >
           <span>Main Dashboard</span>
           <ExternalLink size={13} />
         </a>
 
+        {/* Divider */}
+        <div className="header-vdivider" />
+
         {/* User Pill & Logout */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          paddingLeft: '14px',
-          borderLeft: '1px solid #e2e8f0'
-        }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            background: '#e0e7ff',
-            color: '#3730a3',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '13px',
-            fontWeight: '700'
-          }}>
+        <div className="user-profile-wrap">
+          <div className="user-avatar">
             {user?.username ? user.username.charAt(0).toUpperCase() : 'A'}
           </div>
-          <div style={{ lineHeight: '1.2' }}>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a' }}>
-              {user?.username || 'admin'}
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-              Super Admin
-            </div>
+          <div className="user-meta">
+            <span className="user-name">{user?.username || 'admin'}</span>
+            <span className="user-role">Super Admin</span>
           </div>
 
           <button
             onClick={onLogout}
             title="Sign out of Admin Console"
-            className="btn-ghost"
-            style={{ marginLeft: '4px' }}
+            className="btn-logout"
+            type="button"
           >
-            <LogOut size={16} />
+            <LogOut size={15} />
           </button>
         </div>
       </div>
