@@ -3,8 +3,8 @@ import { Lock, User, ShieldCheck, AlertCircle, ArrowRight, Check, Eye, EyeOff } 
 import api from '../api';
 
 export default function LoginPage({ onLoginSuccess }) {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -167,35 +167,6 @@ export default function LoginPage({ onLoginSuccess }) {
               </>
             )}
           </button>
-
-          {/* Quick Demo Fill Helper */}
-          <div style={{
-            marginTop: '22px',
-            paddingTop: '16px',
-            borderTop: '1px solid #f1f5f9',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '12px',
-            color: '#64748b'
-          }}>
-            <span>Default: <strong>admin</strong> / <strong>admin123</strong></span>
-            <button
-              type="button"
-              onClick={() => { setUsername('admin'); setPassword('admin123'); }}
-              style={{
-                background: '#eff6ff',
-                border: '1px solid #bfdbfe',
-                color: '#2563eb',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: '600'
-              }}
-            >
-              Fill Demo
-            </button>
-          </div>
         </form>
       </div>
     </div>
