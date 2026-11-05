@@ -33,6 +33,9 @@ export default function ThresholdManager({ showToast }) {
   const [editingTool, setEditingTool] = useState(null);
   const [newLimit, setNewLimit] = useState(25);
   const [newWarningLimit, setNewWarningLimit] = useState(22);
+  const [newTargetTorque, setNewTargetTorque] = useState(20);
+  const [newTorqueMin, setNewTorqueMin] = useState(17);
+  const [newTorqueMax, setNewTorqueMax] = useState(23);
   const [emailTriggerEnabled, setEmailTriggerEnabled] = useState(true);
   const [modalSaving, setModalSaving] = useState(false);
 
@@ -103,6 +106,10 @@ export default function ThresholdManager({ showToast }) {
     setEditingTool(tool);
     setNewLimit(tool.pulse_limit);
     setNewWarningLimit(tool.warning_limit || Math.max(1, tool.pulse_limit - 3));
+    const defTorque = tool.target_torque || 20;
+    setNewTargetTorque(defTorque);
+    setNewTorqueMin(tool.torque_min || Number((defTorque * 0.82).toFixed(1)));
+    setNewTorqueMax(tool.torque_max || Number((defTorque * 1.18).toFixed(1)));
     setEmailTriggerEnabled(tool.email_trigger_enabled !== false);
   };
 
@@ -119,17 +126,20 @@ export default function ThresholdManager({ showToast }) {
       const res = await api.put(`/thresholds/${editingTool.wrench_id}`, {
         pulse_limit: parseInt(newLimit, 10),
         warning_limit: parseInt(newWarningLimit, 10),
-        email_trigger_enabled: emailTriggerEnabled
+        email_trigger_enabled: emailTriggerEnabled,
+        target_torque: parseFloat(newTargetTorque),
+        torque_min: parseFloat(newTorqueMin),
+        torque_max: parseFloat(newTorqueMax)
       });
 
       if (res.data.success) {
-        showToast(`✅ Pulse count limit for ${editingTool.tool_name} successfully set to ${newLimit}!`);
+        showToast(`✅ Parameters for ${editingTool.tool_name} successfully updated!`);
         setTools(prev => prev.map(t => t.wrench_id === editingTool.wrench_id ? res.data.data : t));
         setDraftLimits(prev => ({ ...prev, [editingTool.wrench_id]: parseInt(newLimit, 10) }));
         closeEditModal();
       }
     } catch (err) {
-      showToast('Failed to update limit: ' + (err.response?.data?.message || err.message), 'error');
+      showToast('Failed to update tool: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
       setModalSaving(false);
     }
@@ -590,6 +600,56 @@ export default function ThresholdManager({ showToast }) {
                   />
                   <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
                     Pre-alerts maintenance team on the dashboard before catastrophic shut-off failure.
+                  </p>
+                </div>
+
+                {/* Engineering Torque Specification */}
+                <div style={{ marginBottom: '18px', padding: '12px 14px', background: '#f0fdf4', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#166534', marginBottom: '8px' }}>
+                    Engineering Torque Target & Tolerance (N·m)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                    <div>
+                      <span style={{ fontSize: '11px', color: '#166534', fontWeight: 600 }}>Min (N·m)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="input-field"
+                        value={newTorqueMin}
+                        onChange={(e) => setNewTorqueMin(parseFloat(e.target.value) || 0)}
+                        style={{ marginTop: '2px', background: '#ffffff' }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '11px', color: '#166534', fontWeight: 700 }}>Target (N·m)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="input-field"
+                        value={newTargetTorque}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          setNewTargetTorque(val);
+                          setNewTorqueMin(Number((val * 0.82).toFixed(1)));
+                          setNewTorqueMax(Number((val * 1.18).toFixed(1)));
+                        }}
+                        style={{ marginTop: '2px', background: '#ffffff', fontWeight: 700 }}
+                      />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '11px', color: '#166534', fontWeight: 600 }}>Max (N·m)</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="input-field"
+                        value={newTorqueMax}
+                        onChange={(e) => setNewTorqueMax(parseFloat(e.target.value) || 0)}
+                        style={{ marginTop: '2px', background: '#ffffff' }}
+                      />
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '11px', color: '#15803d', marginTop: '6px', marginBottom: 0 }}>
+                    Aligns the dashboard's green target line and tolerance band with the shop-floor tool specification.
                   </p>
                 </div>
 
