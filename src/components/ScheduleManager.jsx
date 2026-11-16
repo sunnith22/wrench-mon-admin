@@ -13,7 +13,8 @@ import {
   ShieldCheck,
   Zap,
   Activity,
-  Layers
+  Layers,
+  History
 } from 'lucide-react';
 import api from '../api';
 
@@ -22,6 +23,7 @@ export default function ScheduleManager({ showToast }) {
   const [syncStatus, setSyncStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState(false);
+  const [backfilling, setBackfilling] = useState(false);
 
   // Add / Edit Modal State
   const [showModal, setShowModal] = useState(false);
@@ -149,6 +151,25 @@ export default function ScheduleManager({ showToast }) {
     }
   };
 
+  const handleTriggerBackfill = async () => {
+    if (!window.confirm("Run Initial Historical Backfill (Past 8 Days)?\n\nThis will safely read past shift records sequentially with throttled reads (<0.5% CPU load) and store them permanently into PostgreSQL on 10.82.126.44. Existing records are preserved with zero duplicates.")) {
+      return;
+    }
+    setBackfilling(true);
+    try {
+      const res = await api.post('/schedule/backfill-history', { days: 8 }, { timeout: 180000 });
+      if (res.data.success) {
+        const r = res.data.result;
+        showToast(`✅ Historical backfill complete! ${r.totalSaved} past cycles stored in PostgreSQL, ${r.totalClubbed} records clubbed.`);
+        fetchSchedule();
+      }
+    } catch (err) {
+      showToast('Historical backfill failed: ' + (err.response?.data?.message || err.message), 'error');
+    } finally {
+      setBackfilling(false);
+    }
+  };
+
   return (
     <div>
       {/* Manual Trigger & Immediate Sync Bar */}
@@ -159,11 +180,11 @@ export default function ScheduleManager({ showToast }) {
               width: '10px',
               height: '10px',
               borderRadius: '50%',
-              background: syncStatus?.isRunning ? '#f59e0b' : '#10b981',
+              background: syncStatus?.isRunning || backfilling ? '#f59e0b' : '#10b981',
               display: 'inline-block'
             }} />
             <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
-              Dynamic Scheduler Status: {syncStatus?.isRunning ? 'ACTIVE EXTRACTION IN PROGRESS' : 'ONLINE & MONITORING'}
+              Dynamic Scheduler Status: {backfilling ? 'HISTORICAL SEEDING IN PROGRESS (PAST 8 DAYS)' : syncStatus?.isRunning ? 'ACTIVE EXTRACTION IN PROGRESS' : 'ONLINE & MONITORING'}
             </span>
           </div>
           <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
@@ -175,7 +196,18 @@ export default function ScheduleManager({ showToast }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleTriggerBackfill}
+            disabled={backfilling || triggering || syncStatus?.isRunning}
+            className="btn btn-secondary"
+            style={{ padding: '9px 15px', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}
+            title="Seed past 8 days into PostgreSQL permanently"
+          >
+            <History size={15} color="#475569" />
+            <span>{backfilling ? 'Seeding History...' : 'Initial Backfill (8 Days)'}</span>
+          </button>
+
           <button
             onClick={openAddModal}
             className="btn btn-secondary"
@@ -186,7 +218,7 @@ export default function ScheduleManager({ showToast }) {
 
           <button
             onClick={handleTriggerSyncNow}
-            disabled={triggering || syncStatus?.isRunning}
+            disabled={backfilling || triggering || syncStatus?.isRunning}
             className="btn btn-primary"
             style={{ padding: '10px 18px', background: '#2563eb' }}
           >
