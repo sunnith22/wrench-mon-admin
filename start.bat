@@ -16,7 +16,7 @@ timeout /t 2 /nobreak >nul
 echo.
 echo ========================================================
 echo   Admin Portal is running at: http://localhost:3020
-echo   Default Login: admin / admin123
+echo   Username: admin (Password configured in backend/.env)
 echo ========================================================
 start http://localhost:3020
 pause
