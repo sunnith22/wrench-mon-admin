@@ -31,7 +31,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
   const getApiErrorMessage = (err, fallback) => {
     if (!err.response) {
-      return `Cannot reach Backend API on port 8140 (${err.message}). Make sure the backend server is running.`;
+      return `Cannot reach Backend API on port 8143 (${err.message}). Make sure the backend server is running.`;
     }
     return err.response?.data?.message || fallback;
   };
